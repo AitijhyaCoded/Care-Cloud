@@ -5,7 +5,37 @@ import html2pdf from 'html2pdf.js'; // Import the html2pdf library
 const API_KEY = "AIzaSyBOVifXaYYsv78ZUcoFEZ0_9SvfycvMd8s";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-// Text chat function with fixed role order (no changes needed here)
+// // Text chat function with fixed role order (no changes needed here)
+// export const generateTextResponse = async (messages: { role: 'user' | 'assistant', content: string }[]) => {
+//     try {
+//         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+//         // Ensure the conversation has at least one user message
+//         if (messages.length === 0 || messages.every(msg => msg.role !== 'user')) {
+//             throw new Error("Conversation must include at least one user message");
+//         }
+
+//         // Get the last user message for sending to Gemini
+//         const lastUserMessage = [...messages].reverse().find(msg => msg.role === 'user');
+
+//         if (!lastUserMessage) {
+//             throw new Error("No user message found");
+//         }
+
+//         // Format conversation for Gemini
+//         const chat = model.startChat();
+//         const result = await chat.sendMessage(lastUserMessage.content);
+//         const response = await result.response;
+//         const text = response.text();
+
+//         return text;
+//     } catch (error) {
+//         console.error("Error generating text response:", error);
+//         throw error;
+//     }
+// };
+
+// Text chat function with fixed role order and tone customization
 export const generateTextResponse = async (messages: { role: 'user' | 'assistant', content: string }[]) => {
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -15,16 +45,24 @@ export const generateTextResponse = async (messages: { role: 'user' | 'assistant
             throw new Error("Conversation must include at least one user message");
         }
 
-        // Get the last user message for sending to Gemini
+        // Get the last user message
         const lastUserMessage = [...messages].reverse().find(msg => msg.role === 'user');
 
         if (!lastUserMessage) {
             throw new Error("No user message found");
         }
 
-        // Format conversation for Gemini
+        // System prompt to set tone
+        const systemInstruction = `
+You are a warm, empathetic, and friendly AI companion. Your responses should always sound supportive, kind, encouraging, and human — like a thoughtful friend who listens and cares deeply. Avoid robotic, clinical, or overly formal tones. Make the person feel heard and supported.
+`;
+
+        // Combine system prompt with the user's message
+        const userPrompt = `${systemInstruction}\n\nUser: ${lastUserMessage.content}`;
+
+        // Send to Gemini
         const chat = model.startChat();
-        const result = await chat.sendMessage(lastUserMessage.content);
+        const result = await chat.sendMessage(userPrompt);
         const response = await result.response;
         const text = response.text();
 
@@ -34,6 +72,7 @@ export const generateTextResponse = async (messages: { role: 'user' | 'assistant
         throw error;
     }
 };
+
 
 // Simulate transcribing audio to text (no changes needed here)
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {

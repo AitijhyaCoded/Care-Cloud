@@ -23,6 +23,10 @@ const AICompanionPage = () => {
   const [transcription, setTranscription] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  // const [transcription, setTranscription] = useState("");
+  const [botResponse, setBotResponse] = useState("");
+  // const [isRecording, setIsRecording] = useState(false);
+
   
   // Save messages to localStorage when they change
   useEffect(() => {
@@ -94,69 +98,157 @@ const AICompanionPage = () => {
     }
   };
   
+  // const toggleRecording = async () => {
+  //   if (!isRecording) {
+  //     // Start recording
+  //     setIsRecording(true);
+  //     setTranscription("");
+      
+  //     try {
+  //       // Request microphone access
+  //       await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+  //       toast({
+  //         title: "Recording started",
+  //         description: "Speak clearly into your microphone.",
+  //       });
+        
+  //       // In a real implementation, we would start recording here
+  //       // For now, we'll simulate recording with a timeout
+  //       setTimeout(async () => {
+  //         // Simulate recording for 3 seconds
+  //         toast({
+  //           title: "Processing speech",
+  //           description: "Converting your speech to text...",
+  //         });
+          
+  //         // After 3 seconds, stop recording
+  //         setTimeout(async () => {
+  //           setIsRecording(false);
+  //           // Simulate transcription
+  //           try {
+  //             const mockAudioBlob = new Blob([], { type: 'audio/webm' });
+  //             const transcribedText = await transcribeAudio(mockAudioBlob);
+  //             setTranscription(transcribedText);
+  //           } catch (error) {
+  //             console.error("Error transcribing audio:", error);
+  //             toast({
+  //               title: "Transcription Error",
+  //               description: "Could not transcribe your speech. Please try again.",
+  //               variant: "destructive",
+  //             });
+  //             setIsRecording(false);
+  //           }
+  //         }, 3000);
+  //       }, 2000);
+        
+  //     } catch (error) {
+  //       console.error("Error accessing microphone:", error);
+  //       setIsRecording(false);
+  //       toast({
+  //         title: "Microphone Error",
+  //         description: "Could not access your microphone. Please check permissions.",
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   } else {
+  //     // Stop recording
+  //     setIsRecording(false);
+  //     toast({
+  //       title: "Recording stopped",
+  //       description: "Processing your speech...",
+  //     });
+  //   }
+  // };
+
   const toggleRecording = async () => {
     if (!isRecording) {
-      // Start recording
-      setIsRecording(true);
-      setTranscription("");
-      
-      try {
-        // Request microphone access
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        
-        toast({
-          title: "Recording started",
-          description: "Speak clearly into your microphone.",
-        });
-        
-        // In a real implementation, we would start recording here
-        // For now, we'll simulate recording with a timeout
-        setTimeout(async () => {
-          // Simulate recording for 3 seconds
-          toast({
-            title: "Processing speech",
-            description: "Converting your speech to text...",
-          });
-          
-          // After 3 seconds, stop recording
-          setTimeout(async () => {
+        setIsRecording(true);
+        setTranscription(""); // Clear previous transcription
+
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "en-US";
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            let finalTranscript = ""; // Store final transcript
+
+            recognition.onresult = (event) => {
+                const lastResult = event.results[event.resultIndex];
+                const transcript = lastResult[0].transcript;
+
+                // Update transcription state (interim or final)
+                setTranscription(transcript);
+
+                // If it's the final result
+                if (lastResult.isFinal) {
+                    finalTranscript = transcript;
+                }
+            };
+
+            recognition.onstart = () => {
+                toast({
+                    title: "Listening...",
+                    description: "I'm listening to you. Speak clearly!",
+                });
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech recognition error:", event);
+                toast({
+                    title: "Error",
+                    description: "There was an error with speech recognition. Please try again.",
+                    variant: "destructive",
+                });
+            };
+
+            recognition.onend = async () => {
+                setIsRecording(false);
+                toast({
+                    title: "Recording stopped",
+                    description: "Processing your speech...",
+                });
+
+                if (finalTranscript.trim() !== "") {
+                    // Send transcript to Gemini
+                    try {
+                        const response = await generateTextResponse([
+                            { role: "user", content: finalTranscript }
+                        ]);
+                        // Set the response to UI
+                        setBotResponse(response); // 👈 You'll need this state
+                    } catch (err) {
+                        toast({
+                            title: "Error",
+                            description: "Failed to get response from Gemini.",
+                            variant: "destructive",
+                        });
+                    }
+                }
+            };
+
+            recognition.start();
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
             setIsRecording(false);
-            // Simulate transcription
-            try {
-              const mockAudioBlob = new Blob([], { type: 'audio/webm' });
-              const transcribedText = await transcribeAudio(mockAudioBlob);
-              setTranscription(transcribedText);
-            } catch (error) {
-              console.error("Error transcribing audio:", error);
-              toast({
-                title: "Transcription Error",
-                description: "Could not transcribe your speech. Please try again.",
+            toast({
+                title: "Microphone Error",
+                description: "Could not access your microphone. Please check permissions.",
                 variant: "destructive",
-              });
-              setIsRecording(false);
-            }
-          }, 3000);
-        }, 2000);
-        
-      } catch (error) {
-        console.error("Error accessing microphone:", error);
+            });
+        }
+    } else {
         setIsRecording(false);
         toast({
-          title: "Microphone Error",
-          description: "Could not access your microphone. Please check permissions.",
-          variant: "destructive",
+            title: "Recording stopped",
+            description: "Processing your speech...",
         });
-      }
-    } else {
-      // Stop recording
-      setIsRecording(false);
-      toast({
-        title: "Recording stopped",
-        description: "Processing your speech...",
-      });
     }
-  };
-  
+};
+
   return (
     <MainLayout pageTitle="AI Companion">
       <div className="space-y-6 py-4">
@@ -237,7 +329,7 @@ const AICompanionPage = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="voice" className="space-y-4 pt-4">
+          {/* <TabsContent value="voice" className="space-y-4 pt-4">
             <Card className="p-6 text-center space-y-6">
               <div className="flex justify-center">
                 <div 
@@ -295,6 +387,33 @@ const AICompanionPage = () => {
                   </Button>
                 </div>
               )}
+            </Card>
+          </TabsContent> */}
+
+<TabsContent value="voice" className="space-y-4 pt-4">
+            <Card className="p-4 shadow-sm min-h-[30vh] flex flex-col justify-between">
+              <div className="space-y-4 mb-4">
+                {transcription && (
+                  <div className="bg-gray-100 p-3 rounded-lg text-care-text">
+                    <p className="text-sm italic">🗣️ You said: {transcription}</p>
+                  </div>
+                )}
+                {botResponse && (
+                  <div className="bg-care-lightest p-3 rounded-lg text-care-dark">
+                    <p className="text-sm"><Bot className="inline mr-2" size={14} />{botResponse}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={toggleRecording} 
+                  variant={isRecording ? "destructive" : "secondary"}
+                >
+                  {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
+                  <span className="ml-2">{isRecording ? "Stop" : "Start"} Listening</span>
+                </Button>
+              </div>
             </Card>
           </TabsContent>
         </Tabs>
