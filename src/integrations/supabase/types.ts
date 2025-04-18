@@ -9,7 +9,261 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          for_mood: number[] | null
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          for_mood?: number[] | null
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          for_mood?: number[] | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      games: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          for_mood: number[] | null
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          for_mood?: number[] | null
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          for_mood?: number[] | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      hydration: {
+        Row: {
+          created_at: string
+          current: number | null
+          date: string
+          id: string
+          target: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current?: number | null
+          date?: string
+          id?: string
+          target?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current?: number | null
+          date?: string
+          id?: string
+          target?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      journals: {
+        Row: {
+          content: string
+          created_at: string
+          date: string
+          id: string
+          preview: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          date?: string
+          id?: string
+          preview?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          date?: string
+          id?: string
+          preview?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      medications: {
+        Row: {
+          created_at: string
+          dosage: string | null
+          frequency: string | null
+          id: string
+          name: string
+          time: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dosage?: string | null
+          frequency?: string | null
+          id?: string
+          name: string
+          time?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dosage?: string | null
+          frequency?: string | null
+          id?: string
+          name?: string
+          time?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      meditations: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          duration: string
+          for_mood: number[] | null
+          id: string
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration: string
+          for_mood?: number[] | null
+          id?: string
+          title: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string
+          for_mood?: number[] | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      podcasts: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          for_mood: number[] | null
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          for_mood?: number[] | null
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          for_mood?: number[] | null
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          date: string | null
+          email: string | null
+          id: string
+          sent: boolean | null
+          time: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          email?: string | null
+          id?: string
+          sent?: boolean | null
+          time: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          email?: string | null
+          id?: string
+          sent?: boolean | null
+          time?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      symptoms: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          symptom_type: string
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          symptom_type: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          symptom_type?: string
+          user_id?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

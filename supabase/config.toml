@@ -1,1 +1,5 @@
+
 project_id = "bketjvfmujfvsbjmvlrz"
+
+[functions.check-reminders]
+verify_jwt = false
