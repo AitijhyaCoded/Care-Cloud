@@ -1,16 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { SymptomTracker } from "@/components/recovery/SymptomTracker";
+import { ReportGenerator } from "@/components/recovery/ReportGenerator";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Pill, Bell, ExternalLink, PlusCircle, Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar, Pill, Bell, PlusCircle, Calendar as CalendarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface Medication {
   id: string;
@@ -67,7 +68,10 @@ const TrackerPage = () => {
     return saved ? JSON.parse(saved) : { current: 2, target: 8 };
   });
   
-  // Save to localStorage when values change
+  const { toast } = useToast();
+  
+  const [symptoms, setSymptoms] = useState<Record<string, number>>({});
+
   useEffect(() => {
     localStorage.setItem('medications', JSON.stringify(medications));
   }, [medications]);
@@ -122,6 +126,10 @@ const TrackerPage = () => {
     if (hydration.current > 0) {
       setHydration({...hydration, current: hydration.current - 1});
     }
+  };
+  
+  const handleSymptomUpdate = (updatedSymptoms: Record<string, number>) => {
+    setSymptoms(updatedSymptoms);
   };
 
   return (
@@ -185,7 +193,7 @@ const TrackerPage = () => {
               </Button>
             </div>
             
-            <SymptomTracker />
+            <SymptomTracker onSymptomChange={handleSymptomUpdate} />
             
             <Card className="p-4 shadow-sm">
               <h3 className="text-lg font-medium mb-4 text-care-text">Hydration</h3>
@@ -228,10 +236,15 @@ const TrackerPage = () => {
               <p className="text-xs text-muted-foreground mb-3">
                 Generate a report for your doctor with your symptom history.
               </p>
-              <Button variant="outline" size="sm" className="text-care-dark w-full">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Generate Report
-              </Button>
+              <ReportGenerator 
+                symptoms={symptoms} 
+                hydration={hydration} 
+                medications={medications.map(m => ({ 
+                  name: m.name, 
+                  dosage: m.dosage, 
+                  frequency: m.frequency 
+                }))} 
+              />
             </Card>
           </TabsContent>
           

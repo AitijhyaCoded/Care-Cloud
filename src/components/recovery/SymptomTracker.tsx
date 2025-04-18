@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -11,9 +11,20 @@ const SYMPTOM_TYPES = [
   { id: "energy", name: "Energy Level", icon: Activity, color: "text-comfort-dark" },
 ];
 
-export function SymptomTracker() {
+interface SymptomTrackerProps {
+  onSymptomChange?: (symptoms: Record<string, number>) => void;
+}
+
+export function SymptomTracker({ onSymptomChange }: SymptomTrackerProps) {
   const [activeSymptom, setActiveSymptom] = useState<string | null>(null);
   const [symptoms, setSymptoms] = useState<Record<string, number>>({});
+
+  // Report symptom changes to parent component
+  useEffect(() => {
+    if (onSymptomChange) {
+      onSymptomChange(symptoms);
+    }
+  }, [symptoms, onSymptomChange]);
 
   const handleSymptomChange = (symptomId: string, value: number[]) => {
     setSymptoms(prev => ({
