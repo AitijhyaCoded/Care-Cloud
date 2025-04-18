@@ -390,7 +390,7 @@ const AICompanionPage = () => {
             </Card>
           </TabsContent> */}
 
-<TabsContent value="voice" className="space-y-4 pt-4">
+          <TabsContent value="voice" className="space-y-4 pt-4">
             <Card className="p-4 shadow-sm min-h-[30vh] flex flex-col justify-between">
               <div className="space-y-4 mb-4">
                 {transcription && (
