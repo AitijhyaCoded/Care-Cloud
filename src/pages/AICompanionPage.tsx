@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bot, Mic, MicOff, Send, User } from "lucide-react";
+import { generateTextResponse, transcribeAudio } from "@/utils/geminiApi";
+import { useToast } from "@/hooks/use-toast";
 
 const AICompanionPage = () => {
   const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>(() => {
@@ -17,7 +19,10 @@ const AICompanionPage = () => {
   
   const [inputText, setInputText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [transcription, setTranscription] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   // Save messages to localStorage when they change
   useEffect(() => {
@@ -29,36 +34,126 @@ const AICompanionPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return;
     
     // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: inputText }]);
+    const userMessage = { role: 'user' as const, content: inputText };
+    setMessages(prev => [...prev, userMessage]);
     setInputText("");
+    setIsLoading(true);
     
-    // Simulate AI response (in a real app, this would call an AI API)
-    setTimeout(() => {
-      const responses = [
-        "I'm here for you. How can I support you today?",
-        "That sounds challenging. Would you like to talk more about it?",
-        "I understand. Remember to be kind to yourself during recovery.",
-        "Have you tried any of the meditations in the Calm section?",
-        "It's important to track your symptoms regularly. Would you like me to remind you?",
-        "Would you like me to suggest some entertainment options to help you feel better?",
-      ];
+    try {
+      // Get all messages including the new user message
+      const updatedMessages = [...messages, userMessage];
       
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      setMessages(prev => [...prev, { role: 'assistant', content: randomResponse }]);
-    }, 1000);
+      // Generate AI response
+      const aiResponse = await generateTextResponse(updatedMessages);
+      
+      // Add AI response to messages
+      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get a response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
-  const toggleRecording = () => {
-    // In a real implementation, this would connect to the Web Speech API
-    setIsRecording(!isRecording);
+  const handleVoiceSubmit = async () => {
+    if (!transcription) return;
     
-    if (isRecording) {
-      // Simulating the end of recording with some text
-      setInputText("I'm feeling a bit better today, but still a little tired.");
+    setInputText(transcription);
+    const userMessage = { role: 'user' as const, content: transcription };
+    setMessages(prev => [...prev, userMessage]);
+    setTranscription("");
+    setIsLoading(true);
+    
+    try {
+      // Get all messages including the new user message
+      const updatedMessages = [...messages, userMessage];
+      
+      // Generate AI response
+      const aiResponse = await generateTextResponse(updatedMessages);
+      
+      // Add AI response to messages
+      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+    } catch (error) {
+      console.error("Error sending voice message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get a response for your voice message.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const toggleRecording = async () => {
+    if (!isRecording) {
+      // Start recording
+      setIsRecording(true);
+      setTranscription("");
+      
+      try {
+        // Request microphone access
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        toast({
+          title: "Recording started",
+          description: "Speak clearly into your microphone.",
+        });
+        
+        // In a real implementation, we would start recording here
+        // For now, we'll simulate recording with a timeout
+        setTimeout(async () => {
+          // Simulate recording for 3 seconds
+          toast({
+            title: "Processing speech",
+            description: "Converting your speech to text...",
+          });
+          
+          // After 3 seconds, stop recording
+          setTimeout(async () => {
+            setIsRecording(false);
+            // Simulate transcription
+            try {
+              const mockAudioBlob = new Blob([], { type: 'audio/webm' });
+              const transcribedText = await transcribeAudio(mockAudioBlob);
+              setTranscription(transcribedText);
+            } catch (error) {
+              console.error("Error transcribing audio:", error);
+              toast({
+                title: "Transcription Error",
+                description: "Could not transcribe your speech. Please try again.",
+                variant: "destructive",
+              });
+              setIsRecording(false);
+            }
+          }, 3000);
+        }, 2000);
+        
+      } catch (error) {
+        console.error("Error accessing microphone:", error);
+        setIsRecording(false);
+        toast({
+          title: "Microphone Error",
+          description: "Could not access your microphone. Please check permissions.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Stop recording
+      setIsRecording(false);
+      toast({
+        title: "Recording stopped",
+        description: "Processing your speech...",
+      });
     }
   };
   
@@ -102,6 +197,18 @@ const AICompanionPage = () => {
                     </div>
                   </div>
                 ))}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="flex items-start gap-2 max-w-[80%]">
+                      <div className="p-2 rounded-full bg-care-lightest">
+                        <Bot size={16} className="text-care-dark" />
+                      </div>
+                      <div className="p-3 rounded-lg bg-gray-100 text-care-text">
+                        <p className="text-sm">Thinking...</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
               
@@ -111,6 +218,7 @@ const AICompanionPage = () => {
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Type your message here..."
                   className="resize-none"
+                  disabled={isLoading}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -120,7 +228,7 @@ const AICompanionPage = () => {
                 />
                 <Button 
                   onClick={handleSendMessage}
-                  disabled={!inputText.trim()}
+                  disabled={!inputText.trim() || isLoading}
                   className="bg-care-DEFAULT hover:bg-care-dark"
                 >
                   <Send size={16} />
@@ -144,6 +252,7 @@ const AICompanionPage = () => {
                     size="icon" 
                     className="h-16 w-16 rounded-full"
                     onClick={toggleRecording}
+                    disabled={isLoading}
                   >
                     {isRecording ? (
                       <MicOff size={32} className="text-healing-dark" />
@@ -165,12 +274,25 @@ const AICompanionPage = () => {
                 </p>
               </div>
               
-              {isRecording && (
+              {(isRecording || transcription) && (
                 <div className="text-left bg-care-lightest p-4 rounded-lg">
                   <p className="text-sm text-care-text font-medium">Heard so far:</p>
                   <p className="text-sm text-muted-foreground italic mt-1">
-                    "I'm feeling a bit better today..."
+                    {transcription || "\"Speaking...\""}
                   </p>
+                </div>
+              )}
+              
+              {transcription && (
+                <div className="flex justify-center">
+                  <Button 
+                    onClick={handleVoiceSubmit}
+                    className="bg-care-DEFAULT hover:bg-care-dark"
+                    disabled={isLoading}
+                  >
+                    <Send size={16} className="mr-2" />
+                    Send Voice Message
+                  </Button>
                 </div>
               )}
             </Card>
