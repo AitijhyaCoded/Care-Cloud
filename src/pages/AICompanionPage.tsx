@@ -26,6 +26,10 @@ const AICompanionPage = () => {
   // const [transcription, setTranscription] = useState("");
   const [botResponse, setBotResponse] = useState("");
   // const [isRecording, setIsRecording] = useState(false);
+  const [voiceReplyEnabled, setVoiceReplyEnabled] = useState(true);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+
 
   
   // Save messages to localStorage when they change
@@ -37,6 +41,28 @@ const AICompanionPage = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  //Load Voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+  
+      // Select a soothing default voice (example: Google UK English Female)
+      const preferredVoice = voices.find(voice =>
+        voice.name.toLowerCase().includes("google") &&
+        voice.lang.includes("en") &&
+        (voice.name.toLowerCase().includes("female") || voice.name.toLowerCase().includes("uk"))
+      );
+      if (preferredVoice) setSelectedVoice(preferredVoice);
+    };
+  
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices(); // call immediately
+    }
+  }, []);
+  
   
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
@@ -67,6 +93,20 @@ const AICompanionPage = () => {
       setIsLoading(false);
     }
   };
+
+  //Voice Output Function
+  const speak = (text: string) => {
+    if (!voiceReplyEnabled || !text) return;
+  
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = selectedVoice?.lang || "en-US";
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    synth.speak(utterance);
+  };
+  
   
   const handleVoiceSubmit = async () => {
     if (!transcription) return;
@@ -174,20 +214,36 @@ const AICompanionPage = () => {
             recognition.interimResults = true;
             recognition.maxAlternatives = 1;
 
-            let finalTranscript = ""; // Store final transcript
+            // let finalTranscript = ""; // Store final transcript
 
-            recognition.onresult = (event) => {
-                const lastResult = event.results[event.resultIndex];
-                const transcript = lastResult[0].transcript;
+            // recognition.onresult = (event) => {
+            //     const lastResult = event.results[event.resultIndex];
+            //     const transcript = lastResult[0].transcript;
 
-                // Update transcription state (interim or final)
-                setTranscription(transcript);
+            //     // Update transcription state (interim or final)
+            //     setTranscription(transcript);
 
-                // If it's the final result
-                if (lastResult.isFinal) {
-                    finalTranscript = transcript;
+            //     // If it's the final result
+            //     if (lastResult.isFinal) {
+            //         finalTranscript = transcript;
+            //     }
+            // };
+            let finalTranscript = ""; // move this outside the component scope if needed
+
+              recognition.onresult = (event) => {
+                let interimTranscript = "";
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                  const transcript = event.results[i][0].transcript;
+                  if (event.results[i].isFinal) {
+                    finalTranscript += transcript + " ";
+                  } else {
+                    interimTranscript += transcript;
+                  }
                 }
-            };
+
+                setTranscription(finalTranscript + interimTranscript);
+              };
 
             recognition.onstart = () => {
                 toast({
@@ -205,31 +261,97 @@ const AICompanionPage = () => {
                 });
             };
 
+            // recognition.onend = async () => {
+            //     setIsRecording(false);
+            //     toast({
+            //         title: "Recording stopped",
+            //         description: "Processing your speech...",
+            //     });
+
+            //     if (finalTranscript.trim() !== "") {
+            //         // Send transcript to Gemini
+            //         try {
+            //             const response = await generateTextResponse([
+            //                 { role: "user", content: finalTranscript }
+            //             ]);
+            //             // Set the response to UI
+            //             setBotResponse(response); // 👈 You'll need this state
+            //         } catch (err) {
+            //             toast({
+            //                 title: "Error",
+            //                 description: "Failed to get response from Gemini.",
+            //                 variant: "destructive",
+            //             });
+            //         }
+            //     }
+            // };
+
+            // recognition.onend = async () => {
+            //   setIsRecording(false);
+            //   toast({
+            //     title: "Recording stopped",
+            //     description: "Processing your speech...",
+            //   });
+            
+            //   if (finalTranscript.trim() !== "") {
+            //     try {
+            //       const response = await generateTextResponse([
+            //         { role: "user", content: finalTranscript }
+            //       ]);
+            
+            //       // Add AI response to message history
+            //       setMessages(prev => [...prev, { role: "user", content: finalTranscript }, { role: "assistant", content: response }]);
+            
+            //       // Speak the response using SpeechSynthesis
+            //       const synth = window.speechSynthesis;
+            //       const utterance = new SpeechSynthesisUtterance(response);
+            //       utterance.lang = "en-US";
+            //       synth.speak(utterance);
+            //     } catch (err) {
+            //       toast({
+            //         title: "Error",
+            //         description: "Failed to get response from Gemini.",
+            //         variant: "destructive",
+            //       });
+            //     }
+            //   }
+            // };
+
             recognition.onend = async () => {
-                setIsRecording(false);
-                toast({
-                    title: "Recording stopped",
-                    description: "Processing your speech...",
-                });
-
-                if (finalTranscript.trim() !== "") {
-                    // Send transcript to Gemini
-                    try {
-                        const response = await generateTextResponse([
-                            { role: "user", content: finalTranscript }
-                        ]);
-                        // Set the response to UI
-                        setBotResponse(response); // 👈 You'll need this state
-                    } catch (err) {
-                        toast({
-                            title: "Error",
-                            description: "Failed to get response from Gemini.",
-                            variant: "destructive",
-                        });
-                    }
+              setIsRecording(false);
+              toast({
+                title: "Recording stopped",
+                description: "Processing your speech...",
+              });
+            
+              if (finalTranscript.trim() !== "") {
+                try {
+                  // Get the response from the assistant based on the user's speech
+                  const response = await generateTextResponse([
+                    { role: "user", content: finalTranscript }
+                  ]);
+            
+                  // Add both the user's input and the assistant's response to the chat history
+                  setMessages(prev => [
+                    ...prev,
+                    { role: "user", content: finalTranscript },  // User's input
+                    { role: "assistant", content: response }    // Assistant's response
+                  ]);
+            
+                  // Speak the assistant's response out loud
+                  speak(response);
+                } catch (err) {
+                  toast({
+                    title: "Error",
+                    description: "Failed to get response from Gemini.",
+                    variant: "destructive",
+                  });
                 }
+              }
             };
+            
 
+            
             recognition.start();
         } catch (error) {
             console.error("Error accessing microphone:", error);
@@ -275,14 +397,14 @@ const AICompanionPage = () => {
                       <div 
                         className={`p-3 rounded-lg ${
                           message.role === 'user' 
-                            ? 'bg-care-DEFAULT text-white' 
-                            : 'bg-gray-100 text-care-text'
+                            ? 'bg-care-DEFAULT bg-blue-100 text-black' 
+                            : 'bg-green-100 text-care-text'
                         }`}
                       >
                         <p className="text-sm">{message.content}</p>
                       </div>
                       {message.role === 'user' && (
-                        <div className="p-2 rounded-full bg-healing-lightest">
+                        <div className="p-2 rounded-full  bg-healing-lightest">
                           <User size={16} className="text-healing-dark" />
                         </div>
                       )}
@@ -390,7 +512,7 @@ const AICompanionPage = () => {
             </Card>
           </TabsContent> */}
 
-          <TabsContent value="voice" className="space-y-4 pt-4">
+        <TabsContent value="voice" className="space-y-4 pt-4">
             <Card className="p-4 shadow-sm min-h-[30vh] flex flex-col justify-between">
               <div className="space-y-4 mb-4">
                 {transcription && (
@@ -404,6 +526,36 @@ const AICompanionPage = () => {
                   </div>
                 )}
               </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={voiceReplyEnabled}
+                    onChange={() => setVoiceReplyEnabled(!voiceReplyEnabled)}
+                  />
+                  Voice Reply
+                </label>
+
+                <div>
+                  <label className="text-sm font-medium">Select Voice:</label>
+                  <select
+                    className="border border-gray-300 rounded px-2 py-1 ml-2"
+                    onChange={(e) => {
+                      const selected = availableVoices.find(voice => voice.name === e.target.value);
+                      if (selected) setSelectedVoice(selected);
+                    }}
+                    value={selectedVoice?.name || ""}
+                  >
+                    {availableVoices.map((voice, index) => (
+                      <option key={index} value={voice.name}>
+                        {voice.name} ({voice.lang})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
 
               <div className="flex gap-2">
                 <Button 

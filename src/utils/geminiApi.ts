@@ -91,6 +91,8 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     });
 };
 
+
+
 // Generate PDF report with html2pdf
 export const generatePDFReport = async (data: any): Promise<Blob> => {
     try {
