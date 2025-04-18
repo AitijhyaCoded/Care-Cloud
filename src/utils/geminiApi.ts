@@ -1,126 +1,115 @@
 
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize the Gemini API
 const API_KEY = "AIzaSyBOVifXaYYsv78ZUcoFEZ0_9SvfycvMd8s";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-// Set up the model configuration
-const modelConfig = {
-  temperature: 0.7,
-  topK: 40,
-  topP: 0.95,
-  safetySettings: [
-    {
-      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-    {
-      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-    },
-  ],
-};
-
-// Text chat function
+// Text chat function with fixed role order
 export const generateTextResponse = async (messages: {role: 'user' | 'assistant', content: string}[]) => {
   try {
-    // Get the model
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    // Format the conversation history for Gemini API
-    const chatHistory = messages.slice(0, -1).map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }],
-    }));
+    // Ensure the conversation has at least one user message
+    if (messages.length === 0 || messages.every(msg => msg.role !== 'user')) {
+      throw new Error("Conversation must include at least one user message");
+    }
     
-    // Get the latest user message
-    const lastMessage = messages[messages.length - 1];
+    // Get the last user message for sending to Gemini
+    const lastUserMessage = [...messages].reverse().find(msg => msg.role === 'user');
     
-    // Start a chat session with history
-    const chat = model.startChat({
-      generationConfig: modelConfig,
-      history: chatHistory,
-    });
+    if (!lastUserMessage) {
+      throw new Error("No user message found");
+    }
     
-    // Send the latest message and get the response
-    const result = await chat.sendMessage(lastMessage.content);
+    // Format conversation for Gemini
+    const chat = model.startChat();
+    const result = await chat.sendMessage(lastUserMessage.content);
     const response = await result.response;
     const text = response.text();
     
     return text;
   } catch (error) {
     console.error("Error generating text response:", error);
-    if (error instanceof Error) {
-      return `Error: ${error.message}`;
-    }
-    return "I'm having trouble connecting to the AI service. Please check your internet connection and try again.";
+    throw error;
   }
 };
 
-// Voice transcription function - simulate real transcription
+// Simulate transcribing audio to text (since we don't have actual transcription API yet)
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
-  // This is a simulated function since we're not actually recording audio
+  // For now, we'll return mock text to simulate transcription
+  // In a real implementation, you would send the audioBlob to a speech-to-text API
   return new Promise((resolve) => {
+    // Simulate API delay
     setTimeout(() => {
-      resolve("How are you feeling today?");
-    }, 1500);
+      // Return a random sample response based on simulated context
+      const sampleResponses = [
+        "How am I feeling today?",
+        "What's a good way to manage my pain?",
+        "I'm having trouble sleeping. Do you have any suggestions?",
+        "Can you recommend some relaxation techniques?",
+        "I'm feeling much better today."
+      ];
+      const randomIndex = Math.floor(Math.random() * sampleResponses.length);
+      resolve(sampleResponses[randomIndex]);
+    }, 1000);
   });
 };
 
-// Generate health report with Gemini
-export const generateHealthReport = async (symptoms: any): Promise<string> => {
+// Generate PDF report with enhanced formatting
+export const generatePDFReport = async (data: any): Promise<Blob> => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    // Format the symptoms data into a prompt
     const prompt = `
-      Generate a comprehensive health report based on the following symptoms:
-      ${JSON.stringify(symptoms, null, 2)}
+      Create a detailed health report based on the following data:
+      ${JSON.stringify(data, null, 2)}
       
-      Format the report in a professional, accessible manner with the following sections:
-      1. Symptom Summary
-      2. Possible Interpretations
-      3. Recommended Actions
-      4. Self-Care Suggestions
-      5. When to Seek Professional Help
+      Format the report professionally with these sections:
+      1. Executive Summary
+      2. Symptom Analysis
+      3. Hydration Status
+      4. Medication Schedule
+      5. Recommendations
+      6. Next Steps
       
-      Make the report easy to understand and maintain a supportive, encouraging tone.
+      Make the report easy to understand and maintain a supportive tone.
     `;
     
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    return text;
-  } catch (error) {
-    console.error("Error generating health report:", error);
-    if (error instanceof Error) {
-      return `Error generating report: ${error.message}`;
-    }
-    return "I'm having trouble generating your health report right now. Please try again later.";
-  }
-};
-
-// Export a function to generate PDF report
-export const generatePDFReport = async (symptoms: any): Promise<Blob> => {
-  try {
-    // Get the health report text
-    const reportText = await generateHealthReport(symptoms);
+    // Convert text to PDF format using a basic HTML structure
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Health Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; padding: 40px; }
+          h1 { color: #2563eb; }
+          h2 { color: #4b5563; margin-top: 20px; }
+          p { margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <h1>Health Recovery Report</h1>
+        <hr/>
+        ${text.split('\n').map(line => 
+          line.startsWith('#') ? 
+            `<h2>${line.replace('#', '').trim()}</h2>` : 
+            `<p>${line}</p>`
+        ).join('')}
+      </body>
+      </html>
+    `;
     
-    // Mock PDF generation (in a real app, you'd use a PDF library)
-    const pdfBlob = new Blob([reportText], { type: 'text/plain' });
-    return pdfBlob;
+    // Create PDF blob
+    const blob = new Blob([htmlContent], { type: 'application/pdf' });
+    return blob;
   } catch (error) {
     console.error("Error generating PDF:", error);
-    throw new Error("Failed to generate PDF report");
+    throw error;
   }
 };
