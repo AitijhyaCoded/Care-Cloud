@@ -38,7 +38,7 @@ const EntertainPage = () => {
       description: "Detective short stories by Arthur Conan Doyle featuring the famous sleuth.",
       duration: "6-7 hours",
       embedUrl: "https://www.gutenberg.org/files/1661/1661-h/1661-h.htm",
-      forMood: [1, 2, 3],
+      forMood: [2, 3, 4],
       imageSrc: "https://images.unsplash.com/photo-1594024561977-4774ad2e6eae?q=80&w=1927&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
@@ -48,7 +48,7 @@ const EntertainPage = () => {
       description: "Mary Shelley's Gothic masterpiece about creation and identity",
       duration: "4-6 hours",
       embedUrl: "https://www.gutenberg.org/files/84/84-h/84-h.htm",
-      forMood: [0, 1, 2, 3, 4],
+      forMood: [3, 4],
       imageSrc: "https://images.unsplash.com/photo-1605595988901-3d06601c38ad?q=80&w=2030&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
@@ -68,7 +68,7 @@ const EntertainPage = () => {
       description: "A classic children's novel about growth and healing through nature and friendship.",
       duration: "5-6 hours",
       embedUrl: "https://www.gutenberg.org/files/113/113-h/113-h.htm",
-      forMood: [0, 1, 2],
+      forMood: [0, 1, 2, 3, 4],
       imageSrc: "https://images.unsplash.com/photo-1689669405099-3576710d249d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
@@ -78,7 +78,7 @@ const EntertainPage = () => {
       description: "A fantastical journey through a whimsical and imaginative world.",
       duration: "3-5 hours",
       embedUrl: "https://www.gutenberg.org/files/11/11-h/11-h.htm",
-      forMood: [2, 3, 4],
+      forMood: [0, 1, 2, 3, 4],
       imageSrc: "https://images.unsplash.com/photo-1697566389940-5365335ae1ca?q=80&w=2127&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
   
@@ -90,7 +90,7 @@ const EntertainPage = () => {
       description: "Relaxing idle city builder game",
       duration: "Unlimited",
       embedUrl: "https://fluffy-lotus.itch.io/fillupthehole",
-      forMood: [1, 2, 3],
+      forMood: [0, 1, 2, 3, 4],
       imageSrc: "https://plus.unsplash.com/premium_photo-1667539633338-5b7afd626193?q=80&w=2127&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
     {
