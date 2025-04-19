@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { SymptomTracker } from "@/components/recovery/SymptomTracker";
+import { SymptomHistory } from "@/components/recovery/SymptomHistory"; // Ensure this file exists at the specified path
 import { ReportGenerator } from "@/components/recovery/ReportGenerator";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Pill, Bell, PlusCircle, Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar, Pill, Bell, PlusCircle, Calendar as CalendarIcon, X, DropletPlus, DropletMinus, History, Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -12,6 +13,8 @@ import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Medication {
   id: string;
@@ -71,17 +74,84 @@ const TrackerPage = () => {
   const { toast } = useToast();
   
   const [symptoms, setSymptoms] = useState<Record<string, number>>({});
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('medications', JSON.stringify(medications));
+    
+    const saveMedicationsToSupabase = async () => {
+      try {
+        await supabase
+          .from('medications')
+          .delete()
+          .is('user_id', null);
+          
+        for (const med of medications) {
+          await supabase
+            .from('medications')
+            .insert({
+              name: med.name,
+              dosage: med.dosage,
+              frequency: med.frequency,
+              time: med.time
+            });
+        }
+      } catch (error) {
+        console.error("Error saving medications to Supabase:", error);
+      }
+    };
+    
+    saveMedicationsToSupabase();
   }, [medications]);
   
   useEffect(() => {
     localStorage.setItem('reminders', JSON.stringify(reminders));
+    
+    const saveRemindersToSupabase = async () => {
+      try {
+        await supabase
+          .from('reminders')
+          .delete()
+          .is('user_id', null);
+          
+        for (const reminder of reminders) {
+          await supabase
+            .from('reminders')
+            .insert({
+              title: reminder.title,
+              time: reminder.time
+            });
+        }
+      } catch (error) {
+        console.error("Error saving reminders to Supabase:", error);
+      }
+    };
+    
+    saveRemindersToSupabase();
   }, [reminders]);
   
   useEffect(() => {
     localStorage.setItem('hydration', JSON.stringify(hydration));
+    
+    const saveHydrationToSupabase = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('hydration')
+          .upsert({
+            date: new Date().toISOString().split('T')[0],
+            current: hydration.current,
+            target: hydration.target
+          }, {
+            onConflict: 'date'
+          });
+          
+        if (error) throw error;
+      } catch (error) {
+        console.error("Error saving hydration to Supabase:", error);
+      }
+    };
+    
+    saveHydrationToSupabase();
   }, [hydration]);
   
   const addMedication = () => {
@@ -119,6 +189,11 @@ const TrackerPage = () => {
   const increaseHydration = () => {
     if (hydration.current < hydration.target) {
       setHydration({...hydration, current: hydration.current + 1});
+      
+      toast({
+        title: "Hydration updated",
+        description: `${hydration.current + 1}/${hydration.target} glasses of water consumed.`,
+      });
     }
   };
   
@@ -130,6 +205,30 @@ const TrackerPage = () => {
   
   const handleSymptomUpdate = (updatedSymptoms: Record<string, number>) => {
     setSymptoms(updatedSymptoms);
+    
+    const saveSymptomToSupabase = async () => {
+      try {
+        await supabase
+          .from('symptoms')
+          .delete()
+          .eq('date', new Date().toISOString().split('T')[0])
+          .is('user_id', null);
+          
+        for (const [symptomType, value] of Object.entries(updatedSymptoms)) {
+          await supabase
+            .from('symptoms')
+            .insert({
+              symptom_type: symptomType,
+              value: value,
+              date: new Date().toISOString().split('T')[0]
+            });
+        }
+      } catch (error) {
+        console.error("Error saving symptoms to Supabase:", error);
+      }
+    };
+    
+    saveSymptomToSupabase();
   };
 
   return (
@@ -187,65 +286,79 @@ const TrackerPage = () => {
               <h2 className="text-lg font-medium text-care-text">
                 Today's Status
               </h2>
-              <Button variant="outline" size="sm" className="text-care-dark">
-                <Calendar className="mr-2 h-4 w-4" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-care-dark"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                <History className="mr-2 h-4 w-4" />
                 History
               </Button>
             </div>
             
-            <SymptomTracker onSymptomChange={handleSymptomUpdate} />
-            
-            <Card className="p-4 shadow-sm">
-              <h3 className="text-lg font-medium mb-4 text-care-text">Hydration</h3>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-muted-foreground">Daily Goal: {hydration.target} glasses</span>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0" 
-                    onClick={decreaseHydration}
-                    disabled={hydration.current <= 0}
-                  >
-                    -
-                  </Button>
-                  <span className="font-medium text-care-dark">{hydration.current} / {hydration.target}</span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0" 
-                    onClick={increaseHydration}
-                    disabled={hydration.current >= hydration.target}
-                  >
-                    +
-                  </Button>
-                </div>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-care-DEFAULT h-2.5 rounded-full transition-all duration-300" 
-                  style={{ width: `${Math.min(100, (hydration.current / hydration.target) * 100)}%` }}
-                ></div>
-              </div>
-            </Card>
-            
-            <Card className="p-4 shadow-sm bg-care-lightest border-care-light">
-              <h3 className="text-sm font-medium mb-2 text-care-text">
-                Export Health Data
-              </h3>
-              <p className="text-xs text-muted-foreground mb-3">
-                Generate a report for your doctor with your symptom history.
-              </p>
-              <ReportGenerator 
-                symptoms={symptoms} 
-                hydration={hydration} 
-                medications={medications.map(m => ({ 
-                  name: m.name, 
-                  dosage: m.dosage, 
-                  frequency: m.frequency 
-                }))} 
-              />
-            </Card>
+            {showHistory ? (
+              <SymptomHistory onClose={() => setShowHistory(false)} />
+            ) : (
+              <>
+                <SymptomTracker 
+                  onSymptomChange={handleSymptomUpdate} 
+                  date={selectedDate}
+                />
+                
+                <Card className="p-4 shadow-sm">
+                  <h3 className="text-lg font-medium mb-4 text-care-text">Hydration</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm text-muted-foreground">Daily Goal: {hydration.target} glasses</span>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-8 w-8 p-0" 
+                        onClick={decreaseHydration}
+                        disabled={hydration.current <= 0}
+                      >
+                        <Droplet className="h-4 w-4" strokeWidth={1.5} />
+                      </Button>
+                      <span className="font-medium text-care-dark min-w-[60px] text-center">
+                        {hydration.current} / {hydration.target}
+                      </span>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-8 w-8 p-0" 
+                        onClick={increaseHydration}
+                        disabled={hydration.current >= hydration.target}
+                      >
+                        <Droplet className="h-4 w-4" strokeWidth={1.5} />
+                      </Button>
+                    </div>
+                  </div>
+                  <Progress 
+                    value={Math.min(100, (hydration.current / hydration.target) * 100)} 
+                    className="h-3 bg-gray-100"
+                  />
+                </Card>
+                
+                <Card className="p-4 shadow-sm bg-care-lightest border-care-light">
+                  <h3 className="text-sm font-medium mb-2 text-care-text">
+                    Export Health Data
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Generate a report for your doctor with your symptom history.
+                  </p>
+                  <ReportGenerator 
+                    symptoms={symptoms} 
+                    hydration={hydration} 
+                    medications={medications.map(m => ({ 
+                      name: m.name, 
+                      dosage: m.dosage, 
+                      frequency: m.frequency 
+                    }))} 
+                  />
+                </Card>
+              </>
+            )}
           </TabsContent>
           
           <TabsContent value="medications" className="space-y-4 pt-4">
