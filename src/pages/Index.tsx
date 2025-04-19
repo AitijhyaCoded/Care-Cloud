@@ -72,12 +72,22 @@ const Index = () => {
   return (
     <MainLayout>
       <div className="pt-6 pb-10 space-y-6">
-        <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <div>
           <h1 className="text-2xl font-semibold text-care-text animate-fade-in">
             {getGreeting()}, {userName} 👋
           </h1>
           <p className="text-muted-foreground">Welcome back! How are you feeling today?</p>
         </div>
+        {/* little logo added */}
+        <img 
+          className="h-14 md:h-16 transition-transform duration-300 hover:scale-110 hover:rotate-6" 
+          src="favicon.ico" 
+          alt="logo" 
+        />
+      </div>
+
+
         
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Card className="p-4 flex items-center gap-3 bg-care-lightest border-care-light md:w-1/3">
