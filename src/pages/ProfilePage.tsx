@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { User, Mail, Key, Copy, LogOut, Edit, Moon, Sun } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 
 const ProfilePage = () => {
   const { currentUser, logout, updateUserProfile } = useAuth();
@@ -18,6 +18,7 @@ const ProfilePage = () => {
   const [newDisplayName, setNewDisplayName] = useState(currentUser?.displayName || '');
   const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   
   const joinDate = currentUser?.metadata.creationTime 
     ? new Date(currentUser.metadata.creationTime).toLocaleDateString()
@@ -68,6 +69,10 @@ const ProfilePage = () => {
       .join('')
       .toUpperCase()
       .substring(0, 2);
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   return (
@@ -181,9 +186,9 @@ const ProfilePage = () => {
           </CardContent>
           
           <CardFooter className="flex flex-col sm:flex-row gap-3 pt-6">
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto" onClick={toggleTheme}>
               <Sun className="h-4 w-4 mr-2 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="h-4 w-4 mr-2 absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <Moon className="absolute h-4 w-4 mr-2 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               Toggle Theme
             </Button>
             <Button
