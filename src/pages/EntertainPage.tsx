@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { EntertainmentCard } from "@/components/entertainment/EntertainmentCard";
@@ -14,7 +13,8 @@ interface EntertainmentItem {
   type: "book" | "podcast" | "game";
   description: string;
   duration: string;
-  forMood?: number[]; // Mood indexes (0-4) this content is good for
+  embedUrl?: string;
+  forMood?: number[];
 }
 
 const EntertainPage = () => {
@@ -32,79 +32,48 @@ const EntertainPage = () => {
   const allEntertainmentItems: EntertainmentItem[] = [
     {
       id: "b1",
-      title: "The Comfort Book",
+      title: "Frankenstein",
       type: "book",
-      description: "A collection of consolations and thoughts for hard times.",
-      duration: "4 hours",
-      forMood: [0, 1, 2], // For low, down, neutral moods
+      description: "Mary Shelley's Gothic masterpiece about creation and identity",
+      duration: "4-6 hours",
+      embedUrl: "https://www.gutenberg.org/files/84/84-h/84-h.htm",
+      forMood: [0, 1, 2, 3, 4],
     },
     {
       id: "b2",
-      title: "Tiny Beautiful Things",
+      title: "Pride & Prejudice",
       type: "book",
-      description: "Advice on love and life from Dear Sugar.",
-      duration: "6 hours",
-      forMood: [1, 2, 3], // For down, neutral, good moods
-    },
-    {
-      id: "b3",
-      title: "The Boy, the Mole, the Fox and the Horse",
-      type: "book",
-      description: "A heartwarming illustrated book with simple messages of hope.",
-      duration: "1 hour",
-      forMood: [0, 1, 2, 3, 4], // For all moods
-    },
-    {
-      id: "p1",
-      title: "Nothing Much Happens",
-      type: "podcast",
-      description: "Bedtime stories for adults, where nothing much happens.",
-      duration: "30 min episodes",
-      forMood: [0, 1, 2], // For low, down, neutral moods
-    },
-    {
-      id: "p2",
-      title: "Slow Radio",
-      type: "podcast",
-      description: "Immerse yourself in the sounds of nature and gentle music.",
-      duration: "Various lengths",
-      forMood: [1, 2], // For down, neutral moods
-    },
-    {
-      id: "p3",
-      title: "Funny Stories to Brighten Your Day",
-      type: "podcast",
-      description: "Light-hearted stories to make you smile and laugh.",
-      duration: "20 min episodes",
-      forMood: [2, 3, 4], // For neutral, good, great moods
+      description: "Jane Austen's beloved novel of manners and romance",
+      duration: "6-8 hours",
+      embedUrl: "https://www.gutenberg.org/files/1342/1342-h/1342-h.htm",
+      forMood: [2, 3, 4],
     },
     {
       id: "g1",
-      title: "Word Search",
+      title: "Fill Up The Hole",
       type: "game",
-      description: "Find hidden words in a grid of letters.",
-      duration: "Play anytime",
-      forMood: [1, 2, 3, 4], // For down, neutral, good, great moods
+      description: "Relaxing idle city builder game",
+      duration: "Unlimited",
+      embedUrl: "https://fluffy-lotus.itch.io/fillupthehole/embed",
+      forMood: [1, 2, 3],
     },
     {
       id: "g2",
-      title: "Memory Match",
+      title: "Burrilka",
       type: "game",
-      description: "Test your memory by matching pairs of cards.",
-      duration: "5-10 min rounds",
-      forMood: [2, 3, 4], // For neutral, good, great moods
-    },
-    {
-      id: "g3",
-      title: "Peaceful Puzzles",
-      type: "game",
-      description: "Simple jigsaw puzzles with calming scenes.",
-      duration: "10-20 min",
-      forMood: [0, 1, 2], // For low, down, neutral moods
+      description: "Engaging drilling simulation game",
+      duration: "15-30 min",
+      embedUrl: "https://echerryart.itch.io/burrilka/embed",
+      forMood: [2, 3, 4],
     },
   ];
-  
-  // Filter items by mood
+
+  const handleItemAction = (item: EntertainmentItem) => {
+    if (item.embedUrl) {
+      window.open(item.embedUrl, '_blank');
+    }
+  };
+
   const getFilteredItems = (type: "book" | "podcast" | "game") => {
     // Get all items of this type
     const allOfType = allEntertainmentItems.filter(item => item.type === type);
@@ -116,20 +85,6 @@ const EntertainPage = () => {
     
     // If we have recommendations, return those, otherwise return all of this type
     return recommended.length > 0 ? recommended : allOfType;
-  };
-  
-  const handleItemAction = (item: EntertainmentItem) => {
-    // In a real implementation, this would open the specific content
-    const messages = {
-      book: `Opening "${item.title}" for reading...`,
-      podcast: `Playing "${item.title}"...`,
-      game: `Loading "${item.title}"...`
-    };
-    
-    toast({
-      title: messages[item.type],
-      description: "In a full implementation, this would open the content.",
-    });
   };
   
   const getMoodLabel = () => {
@@ -198,11 +153,45 @@ const EntertainPage = () => {
           
           <TabsContent value="books" className="space-y-4 pt-4">
             {getFilteredItems("book").map((book) => (
-              <EntertainmentCard 
-                key={book.id} 
-                {...book} 
-                onAction={() => handleItemAction(book)}
-              />
+              <div key={book.id} className="space-y-4">
+                <EntertainmentCard 
+                  {...book}
+                  onAction={() => handleItemAction(book)}
+                />
+                {book.embedUrl && (
+                  <div className="w-full h-[600px] border border-border rounded-lg overflow-hidden">
+                    <iframe 
+                      src={book.embedUrl} 
+                      width="100%" 
+                      height="100%" 
+                      title={book.title}
+                      className="w-full h-full"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </TabsContent>
+          
+          <TabsContent value="games" className="space-y-4 pt-4">
+            {getFilteredItems("game").map((game) => (
+              <div key={game.id} className="space-y-4">
+                <EntertainmentCard 
+                  {...game}
+                  onAction={() => handleItemAction(game)}
+                />
+                {game.embedUrl && (
+                  <div className="w-full h-[600px] border border-border rounded-lg overflow-hidden">
+                    <iframe 
+                      src={game.embedUrl} 
+                      width="800" 
+                      height="600" 
+                      title={game.title}
+                      className="w-full h-full"
+                    />
+                  </div>
+                )}
+              </div>
             ))}
           </TabsContent>
           
@@ -212,16 +201,6 @@ const EntertainPage = () => {
                 key={podcast.id} 
                 {...podcast} 
                 onAction={() => handleItemAction(podcast)}
-              />
-            ))}
-          </TabsContent>
-          
-          <TabsContent value="games" className="space-y-4 pt-4">
-            {getFilteredItems("game").map((game) => (
-              <EntertainmentCard 
-                key={game.id} 
-                {...game} 
-                onAction={() => handleItemAction(game)}
               />
             ))}
           </TabsContent>
