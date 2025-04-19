@@ -142,7 +142,7 @@ const Index = () => {
           
           <Link to="/calm">
             <Button 
-              className="w-full bg-care-dark hover:bg-care-light text-white hover:text-care-dark transition-all duration-300"
+              className="mt-4 w-full bg-care-dark hover:bg-care-light text-white hover:text-care-dark transition-all duration-300"
             >
               <HeartPulse className="mr-2 h-5 w-5" />
               Need Calm Now
