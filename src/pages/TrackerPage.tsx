@@ -186,16 +186,39 @@ const TrackerPage = () => {
     setReminders(reminders.filter(reminder => reminder.id !== id));
   };
   
+  // const increaseHydration = () => {
+  //   if (hydration.current < hydration.target) {
+  //     setHydration({...hydration, current: hydration.current + 1});
+      
+  //     toast({
+  //       title: "Hydration updated",
+  //       description: `${hydration.current + 1}/${hydration.target} glasses of water consumed.`,
+  //     });
+  //   }
+  // };
+
   const increaseHydration = () => {
     if (hydration.current < hydration.target) {
-      setHydration({...hydration, current: hydration.current + 1});
-      
+      const newHydration = hydration.current + 1;
+      setHydration({ ...hydration, current: newHydration });
+  
+      let description = "";
+  
+      if (newHydration === hydration.target) {
+        description = "🎉 Yayyy! Goal reached! You've hit your hydration target!";
+      } else if (newHydration >= hydration.target - 1) {
+        description = `🥳 Almost there... Nice work! ${newHydration}/${hydration.target} glasses consumed.`;
+      } else {
+        description = `💧 ${newHydration}/${hydration.target} glasses of water consumed. Keep going!`;
+      }
+  
       toast({
         title: "Hydration updated",
-        description: `${hydration.current + 1}/${hydration.target} glasses of water consumed.`,
+        description: description,
       });
     }
   };
+  
   
   const decreaseHydration = () => {
     if (hydration.current > 0) {
