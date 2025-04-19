@@ -110,7 +110,7 @@ const GettingStartedPage = () => {
           </Button>
           <Button 
             onClick={handleComplete}
-            className="bg-care-DEFAULT hover:bg-care-dark text-white"
+            className=" bg-care-dark hover:bg-care-light text-white hover:text-care-dark transition-all duration-300"
           >
             Continue to app
             <ArrowRight className="ml-2 h-4 w-4" />
