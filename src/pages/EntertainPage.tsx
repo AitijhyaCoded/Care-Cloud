@@ -54,7 +54,7 @@ const EntertainPage = () => {
       type: "game",
       description: "Relaxing idle city builder game",
       duration: "Unlimited",
-      embedUrl: "https://fluffy-lotus.itch.io/fillupthehole/embed",
+      embedUrl: "https://fluffy-lotus.itch.io/fillupthehole",
       forMood: [1, 2, 3],
     },
     {
@@ -63,7 +63,7 @@ const EntertainPage = () => {
       type: "game",
       description: "Engaging drilling simulation game",
       duration: "15-30 min",
-      embedUrl: "https://echerryart.itch.io/burrilka/embed",
+      embedUrl: "https://echerryart.itch.io/burrilka",
       forMood: [2, 3, 4],
     },
   ];
@@ -180,7 +180,7 @@ const EntertainPage = () => {
                   {...game}
                   onAction={() => handleItemAction(game)}
                 />
-                {game.embedUrl && (
+                {/* {game.embedUrl && (
                   <div className="w-full h-[600px] border border-border rounded-lg overflow-hidden">
                     <iframe 
                       src={game.embedUrl} 
@@ -190,7 +190,7 @@ const EntertainPage = () => {
                       className="w-full h-full"
                     />
                   </div>
-                )}
+                )} */}
               </div>
             ))}
           </TabsContent>
