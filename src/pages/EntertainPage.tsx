@@ -30,6 +30,7 @@ const EntertainPage = () => {
   
   // All entertainment items
   const allEntertainmentItems: EntertainmentItem[] = [
+    // --- Books ---
     {
       id: "b1",
       title: "Frankenstein",
@@ -49,6 +50,35 @@ const EntertainPage = () => {
       forMood: [2, 3, 4],
     },
     {
+      id: "b3",
+      title: "The Adventures of Sherlock Holmes",
+      type: "book",
+      description: "Detective short stories by Arthur Conan Doyle featuring the famous sleuth.",
+      duration: "6-7 hours",
+      embedUrl: "https://www.gutenberg.org/files/1661/1661-h/1661-h.htm",
+      forMood: [1, 2, 3],
+    },
+    {
+      id: "b4",
+      title: "The Secret Garden",
+      type: "book",
+      description: "A classic children's novel about growth and healing through nature and friendship.",
+      duration: "5-6 hours",
+      embedUrl: "https://www.gutenberg.org/files/113/113-h/113-h.htm",
+      forMood: [0, 1, 2],
+    },
+    {
+      id: "b5",
+      title: "Alice's Adventures in Wonderland",
+      type: "book",
+      description: "A fantastical journey through a whimsical and imaginative world.",
+      duration: "3-5 hours",
+      embedUrl: "https://www.gutenberg.org/files/11/11-h/11-h.htm",
+      forMood: [2, 3, 4],
+    },
+  
+    // --- Games ---
+    {
       id: "g1",
       title: "Fill Up The Hole",
       type: "game",
@@ -66,7 +96,58 @@ const EntertainPage = () => {
       embedUrl: "https://echerryart.itch.io/burrilka",
       forMood: [2, 3, 4],
     },
+    {
+      id: "g3",
+      title: "Zen Sand Garden",
+      type: "game",
+      description: "Draw peaceful patterns in the sand. Simple, meditative, and calming.",
+      duration: "5-15 min",
+      embedUrl: "https://scratch.mit.edu/projects/291669058/",
+      forMood: [0, 1],
+    },
+    {
+      id: "g4",
+      title: "Lo-Fi Room",
+      type: "game",
+      description: "A short rhythm game where you find instruments in a cozy room and play relaxing lofi music.",
+      duration: "5-15 min",
+      embedUrl: "https://bearmask.itch.io/lofi-room",
+      forMood: [2, 3, 4],
+    },
+  
+    // --- Podcasts (already added earlier) ---
+    {
+      id: "p1",
+      title: "The Happiness Lab",
+      type: "podcast",
+      description: "Dr. Laurie Santos explores the science of well-being and shares tips for a happier life.",
+      duration: "30-40 min",
+      embedUrl: "https://www.pushkin.fm/podcasts/the-happiness-lab-with-dr-laurie-santos",
+      forMood: [0, 1, 2, 3, 4],
+    },
+    {
+      id: "p2",
+      title: "Meditative Story",
+      type: "podcast",
+      description: "A blend of storytelling and meditation to relax your mind and uplift your spirit.",
+      duration: "20-30 min",
+      embedUrl: "https://meditativestory.com/",
+      forMood: [0, 1, 2],
+    },
+    {
+      id: "p3",
+      title: "The Daily Meditation Podcast",
+      type: "podcast",
+      description: "A daily boost of peace with meditations to ease anxiety, sleep better, and find calm.",
+      duration: "10-15 min",
+      embedUrl: "https://www.sipandom.com/podcast",
+      forMood: [0, 1, 2],
+    }
+    
   ];
+
+
+
 
   const handleItemAction = (item: EntertainmentItem) => {
     if (item.embedUrl) {
@@ -158,7 +239,7 @@ const EntertainPage = () => {
                   {...book}
                   onAction={() => handleItemAction(book)}
                 />
-                {book.embedUrl && (
+                {/* {book.embedUrl && (
                   <div className="w-full h-[600px] border border-border rounded-lg overflow-hidden">
                     <iframe 
                       src={book.embedUrl} 
@@ -168,7 +249,7 @@ const EntertainPage = () => {
                       className="w-full h-full"
                     />
                   </div>
-                )}
+                )} */}
               </div>
             ))}
           </TabsContent>
