@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { SymptomTracker } from "@/components/recovery/SymptomTracker";
-import { SymptomHistory } from "@/components/recovery/SymptomHistory"; // Ensure this file exists at the specified path
+import { SymptomHistory } from "@/components/recovery/SymptomHistory";
 import { ReportGenerator } from "@/components/recovery/ReportGenerator";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Pill, Bell, PlusCircle, Calendar as CalendarIcon, X, DropletPlus, DropletMinus, History, Droplet } from "lucide-react";
+import { Calendar, Pill, Bell, PlusCircle, Calendar as CalendarIcon, X, Droplet, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -318,7 +318,7 @@ const TrackerPage = () => {
                         onClick={decreaseHydration}
                         disabled={hydration.current <= 0}
                       >
-                        <Droplet className="h-4 w-4" strokeWidth={1.5} />
+                        <Droplet className="h-4 w-4 rotate-180" strokeWidth={1.5} />
                       </Button>
                       <span className="font-medium text-care-dark min-w-[60px] text-center">
                         {hydration.current} / {hydration.target}
