@@ -225,13 +225,13 @@ export function ReportGenerator({ symptoms, hydration, medications }: ReportGene
         {isGenerating ? "Generating..." : "Download Report"}
       </Button>
 
-      <Button variant="outline" size="sm" onClick={handlePrint}>
+      {/* <Button variant="outline" size="sm" onClick={handlePrint}>
         <Printer className="mr-2 h-4 w-4" /> Print Report
-      </Button>
+      </Button> */}
 
-      <Button variant="outline" size="sm" onClick={handleSendEmail}>
+      {/* <Button variant="outline" size="sm" onClick={handleSendEmail}>
         <Send className="mr-2 h-4 w-4" /> Email to Doctor
-      </Button>
+      </Button> */}
 
       <Button variant="outline" size="sm" onClick={handleSendWhatsApp}>
         <Send className="mr-2 h-4 w-4" /> Send via WhatsApp
