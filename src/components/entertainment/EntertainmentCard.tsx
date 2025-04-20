@@ -30,9 +30,9 @@ export function EntertainmentCard({
   const TypeIcon = typeIcons[type];
 
   const typeColors = {
-    book: "bg-care-lightest text-care-dark",
-    podcast: "bg-comfort-lightest text-comfort-dark",
-    game: "bg-healing-lightest text-healing-dark",
+    book: "bg-care-lightest text-care-dark hover:bg-care-dark hover:text-white",
+    podcast: "bg-comfort-lightest text-comfort-dark hover:bg-comfort-dark hover:text-white",
+    game: "bg-healing-lightest text-healing-dark hover:bg-healing-dark hover:text-white",
   };
 
   const actionLabel = {
@@ -60,7 +60,11 @@ export function EntertainmentCard({
         </div>
         <div className="flex items-center justify-between mt-4">
           <span className="text-xs text-muted-foreground">{duration}</span>
-          <Button onClick={onAction} size="sm" className={typeColors[type]}>
+          <Button
+            onClick={onAction}
+            size="sm"
+            className={`border ${typeColors[type]}`}
+          >
             {actionLabel[type]}
           </Button>
         </div>
