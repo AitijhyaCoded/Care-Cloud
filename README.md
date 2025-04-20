@@ -1,6 +1,4 @@
-Here’s a more detailed and visually appealing `README.md` for your repository:
 
-```markdown
 # 🌟 Care-Cloud 🌟
 
 ## 📲 **Isolation Companion** for Well-being and Mental Health
