@@ -25,7 +25,8 @@ Care-Cloud is a cloud-based isolation companion app designed to help individuals
   - ⚡ **Vite** for fast builds and development
   
 - **Backend**: 
-  - 🗄️ **Supabase** for user authentication and database management
+  - 🔑 **Firebase Authentication** for secure user authentication
+  - 🗄️ **Supabase** for real-time database management
 
 - **Extras**:
   - 🔄 **Cloud-based**: Deployed for scalability and reliability.
