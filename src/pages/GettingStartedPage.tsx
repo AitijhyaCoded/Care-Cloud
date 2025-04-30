@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card } from "@/components/ui/card";
@@ -7,18 +6,22 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowRight, CheckCircle, Sparkles, Calendar, Mic, HeartPulse, Music } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const GettingStartedPage = () => {
+interface GettingStartedPageProps {
+  onComplete: () => void;
+}
+
+const GettingStartedPage = ({ onComplete }: GettingStartedPageProps) => {
   const navigate = useNavigate();
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  
+
   const toggleStep = (stepIndex: number) => {
-    setCompletedSteps(prev => 
-      prev.includes(stepIndex) 
+    setCompletedSteps(prev =>
+      prev.includes(stepIndex)
         ? prev.filter(step => step !== stepIndex)
         : [...prev, stepIndex]
     );
   };
-  
+
   const onboardingSteps = [
     {
       title: "Track your recovery",
@@ -49,10 +52,11 @@ const GettingStartedPage = () => {
       link: "/entertain"
     }
   ];
-  
+
   const handleComplete = () => {
     localStorage.setItem("onboardingCompleted", "true");
-    navigate("/");
+    onComplete(); // Update App-level state
+    navigate("/", { replace: true });
   };
 
   return (
@@ -69,13 +73,13 @@ const GettingStartedPage = () => {
             </p>
           </div>
         </Card>
-        
+
         <div className="space-y-4">
           <h2 className="text-xl font-medium text-care-text">Getting Started</h2>
-          
+
           {onboardingSteps.map((step, index) => (
-            <Card 
-              key={index} 
+            <Card
+              key={index}
               className={`p-4 transition-all duration-300 hover:shadow-md cursor-pointer ${
                 completedSteps.includes(index) ? "bg-care-lightest border-care-light" : ""
               }`}
@@ -100,7 +104,7 @@ const GettingStartedPage = () => {
             </Card>
           ))}
         </div>
-        
+
         <div className="flex justify-between items-center mt-6">
           <Button
             variant="outline"
@@ -108,7 +112,7 @@ const GettingStartedPage = () => {
           >
             Skip for now
           </Button>
-          <Button 
+          <Button
             onClick={handleComplete}
             className=" bg-care-dark hover:bg-care-light text-white hover:text-care-dark transition-all duration-300"
           >
