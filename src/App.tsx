@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,24 +22,24 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
-  
+
   useEffect(() => {
     const completed = localStorage.getItem("onboardingCompleted") === "true";
     setOnboardingCompleted(completed);
   }, []);
-  
-  // Show loading state while checking localStorage
-  if (onboardingCompleted === null) {
-    return null;
-  }
-  
+
+  if (onboardingCompleted === null) return null;
+
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/signup" element={<SignupPage />} />
-      <Route path="/getting-started" element={<GettingStartedPage />} />
-      
+      <Route 
+        path="/getting-started" 
+        element={<GettingStartedPage onComplete={() => setOnboardingCompleted(true)} />} 
+      />
+
       {/* Protected routes */}
       <Route 
         path="/" 
@@ -56,7 +55,7 @@ const AppRoutes = () => {
       <Route path="/calm" element={<AuthGuard><CalmPage /></AuthGuard>} />
       <Route path="/entertain" element={<AuthGuard><EntertainPage /></AuthGuard>} />
       <Route path="/ai-companion" element={<AuthGuard><AICompanionPage /></AuthGuard>} />
-      
+
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
