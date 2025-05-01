@@ -98,10 +98,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 👥 Authors
+
+- **[Aitijhya Roy](https://github.com/AitijhyaCoded)** — Fullstack Developer, UI/UX Designer, Database Manager  
+- **[Rudranil Das](https://github.com/Thorfinn05)** — Frontend Developer, UI/UX Designer, AI Engineer
+- **[Koushiki Kundu](https://github.com/koushikikundu9)** — Backend Devloper, Database Manager
+
+---
+
 ## 📬 **Contact & Support**
 
 For any questions, suggestions, or just to chat, feel free to reach out!  
 You can open an issue or reach out to us via email.
+- *Aitijhya Roy* — raitijhya005@gmail.com
+- *Rudranil Das* — rudranild04@gmail.com
 
 ---
 
