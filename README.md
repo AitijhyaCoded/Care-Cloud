@@ -102,6 +102,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For any questions, suggestions, or just to chat, feel free to reach out!  
 You can open an issue or reach out to us via email.
+- *Aitijhya Roy* — raitijhya005@gmail.com
+- *Rudranil Das* — rudranild04@gmail.com
 
 ---
 
