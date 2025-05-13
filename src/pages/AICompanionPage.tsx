@@ -538,8 +538,9 @@ const AICompanionPage = () => {
                 </label>
 
                 <div>
-                  <label className="text-sm font-medium">Select Voice:</label>
+                  <label htmlFor="voice-select" className="text-sm font-medium">Select Voice:</label>
                   <select
+                    id="voice-select"
                     className="border border-gray-300 rounded px-2 py-1 ml-2"
                     onChange={(e) => {
                       const selected = availableVoices.find(voice => voice.name === e.target.value);
