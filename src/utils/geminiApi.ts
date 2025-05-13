@@ -38,7 +38,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 // Text chat function with fixed role order and tone customization
 export const generateTextResponse = async (messages: { role: 'user' | 'assistant', content: string }[]) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         // Ensure the conversation has at least one user message
         if (messages.length === 0 || messages.every(msg => msg.role !== 'user')) {
@@ -353,7 +353,7 @@ export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
 // Generate PDF report with html2pdf
 export const generatePDFReport = async (data: any): Promise<Blob> => {
   try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
       const prompt = `
     Create a professional medical report in structured format using the following patient data:
