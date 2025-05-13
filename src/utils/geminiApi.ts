@@ -54,7 +54,7 @@ export const generateTextResponse = async (messages: { role: 'user' | 'assistant
 
         // System prompt to set tone
         const systemInstruction = `
-You are a warm, empathetic, and friendly AI companion. Your responses should always sound supportive, kind, encouraging, and human — like a thoughtful friend who listens and cares deeply. Avoid robotic, clinical, or overly formal tones. Make the person feel heard and supported.
+You are a warm, empathetic, and friendly AI companion. Respond to the user's message in a concise and human-like way, as if speaking to a friend. Your goal is to make the user feel comfortable and understood.
 `;
 
         // Combine system prompt with the user's message
