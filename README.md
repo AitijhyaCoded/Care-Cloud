@@ -1,7 +1,7 @@
 
 # 🌟 Care-Cloud 🌟
 
-## 📲 **Isolation Companion** for Well-being and Mental Health
+## 📲 **Your Isolation Companion** for Well-being and Mental Health
 
 Care-Cloud is a cloud-based isolation companion app designed to help individuals stay mentally and physically well during periods of isolation. Whether you're self-isolating or just need a bit of support, Care-Cloud offers features to keep you engaged, motivated, and connected.
 
