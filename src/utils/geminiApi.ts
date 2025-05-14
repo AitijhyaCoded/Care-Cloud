@@ -2,8 +2,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import html2pdf from 'html2pdf.js'; // Import the html2pdf library
 
 // Initialize the Gemini API
-const API_KEY = "AIzaSyBOVifXaYYsv78ZUcoFEZ0_9SvfycvMd8s";
-const genAI = new GoogleGenerativeAI(API_KEY);
+// const API_KEY = "AIzaSyBOVifXaYYsv78ZUcoFEZ0_9SvfycvMd8s";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // Use the environment variable or fallback to the hardcoded key
+if (!GEMINI_API_KEY) {
+    throw new Error("Gemini API key is not defined. Please set the VITE_GEMINI_API_KEY environment variable.");
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // // Text chat function with fixed role order (no changes needed here)
 // export const generateTextResponse = async (messages: { role: 'user' | 'assistant', content: string }[]) => {
