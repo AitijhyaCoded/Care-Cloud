@@ -59,7 +59,7 @@ export const generateTextResponse = async (messages: { role: 'user' | 'assistant
 
         // System prompt to set tone
         const systemInstruction = `
-You are a warm, empathetic, and friendly AI companion. Respond to the user's message in a concise and human-like way, as if speaking to a friend. Your goal is to make the user feel comfortable and understood.
+You are a warm, empathetic, and friendly AI companion. Respond to the user's message in a concise and human-like way, as if speaking to a friend. Your goal is to make the user feel comfortable and understood. 
 `;
 
         // Combine system prompt with the user's message
